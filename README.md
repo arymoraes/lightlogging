@@ -1,9 +1,5 @@
 # Light Logging
 
-## Version
-
-0.1.1
-
 ## Description
 
 A lightweight logging library for Node.js applications with optional colorization and file output.
