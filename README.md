@@ -1,5 +1,7 @@
 # Light Logging
 
+[![GitHub](https://img.shields.io/badge/-GitHub-black?logo=github&logoColor=white)](https://github.com/arymoraes/lightlogging)
+
 ## Description
 
 A lightweight logging library for Node.js applications with optional colorization and file output.
