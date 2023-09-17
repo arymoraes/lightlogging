@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LogLevel = void 0;
+exports.Log = exports.LogLevel = void 0;
 const fs = __importStar(require("fs"));
 var LogLevel;
 (function (LogLevel) {
@@ -76,14 +76,15 @@ class Log {
      * @param {LogConfig} config - New configuration settings to apply.
      */
     writeToFile(message) {
+        const parsedMessage = typeof message === "string" ? message : JSON.stringify(message);
         if (this.config.logFilePath) {
             if (this.config.logFilePath[this.config.logFilePath.length - 1] === "/") {
                 this.config.logFilePath = this.config.logFilePath.slice(0, this.config.logFilePath.length - 1);
             }
             const timestamp = new Date().toISOString();
             const formattedMessage = this.config.timestamps === "log-only"
-                ? `[${timestamp}] ${message}`
-                : message;
+                ? `[${timestamp}] ${parsedMessage}`
+                : parsedMessage;
             fs.appendFileSync(`${this.config.logFilePath}/log.log`, formattedMessage + "\n");
         }
     }
@@ -129,7 +130,7 @@ class Log {
                 colorNameToAnsi.hasOwnProperty(customColor)) {
                 ansiColor = colorNameToAnsi[customColor];
             }
-            let fullMessage = `[${logInfo.label}] ${message}`;
+            let fullMessage = `[${logInfo.label}] ${typeof message === "string" ? message : JSON.stringify(message)}`;
             if (this.config.timestamps === "all") {
                 const timestamp = new Date().toISOString();
                 fullMessage = `[${timestamp}] ${fullMessage}`;
@@ -140,7 +141,7 @@ class Log {
     }
     /**
      * Log an informational message.
-     * @param {string} message - The informational message.
+     * @param {any} message - The informational message.
      * @param {...any} additional - Additional information to log.
      */
     info(message, ...additional) {
@@ -148,7 +149,7 @@ class Log {
     }
     /**
      * Log a warning message.
-     * @param {string} message - The warning message.
+     * @param {any} message - The warning message.
      * @param {...any} additional - Additional information to log.
      */
     warn(message, ...additional) {
@@ -156,12 +157,13 @@ class Log {
     }
     /**
      * Log an error message.
-     * @param {string|Error|unknown} message - The error message or Error object.
+     * @param {any} message - The error message or Error object.
      * @param {...any} additional - Additional information to log.
      */
     error(message, ...additional) {
         this.logMessage(LogLevel.Error, message, additional);
     }
 }
+exports.Log = Log;
 const logInstance = new Log();
 exports.default = logInstance;

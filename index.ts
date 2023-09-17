@@ -79,7 +79,9 @@ class Log {
    * Configure or reconfigure the logger.
    * @param {LogConfig} config - New configuration settings to apply.
    */
-  private writeToFile(message: string) {
+  private writeToFile(message: any) {
+    const parsedMessage =
+      typeof message === "string" ? message : JSON.stringify(message);
     if (this.config.logFilePath) {
       if (this.config.logFilePath[this.config.logFilePath.length - 1] === "/") {
         this.config.logFilePath = this.config.logFilePath.slice(
@@ -88,10 +90,11 @@ class Log {
         );
       }
       const timestamp = new Date().toISOString();
+
       const formattedMessage =
         this.config.timestamps === "log-only"
-          ? `[${timestamp}] ${message}`
-          : message;
+          ? `[${timestamp}] ${parsedMessage}`
+          : parsedMessage;
       fs.appendFileSync(
         `${this.config.logFilePath}/log.log`,
         formattedMessage + "\n"
@@ -152,7 +155,9 @@ class Log {
         ansiColor = colorNameToAnsi[customColor];
       }
 
-      let fullMessage = `[${logInfo.label}] ${message}`;
+      let fullMessage = `[${logInfo.label}] ${
+        typeof message === "string" ? message : JSON.stringify(message)
+      }`;
 
       if (this.config.timestamps === "all") {
         const timestamp = new Date().toISOString();
@@ -167,32 +172,32 @@ class Log {
 
   /**
    * Log an informational message.
-   * @param {string} message - The informational message.
+   * @param {any} message - The informational message.
    * @param {...any} additional - Additional information to log.
    */
-  public info(message: string, ...additional: any[]) {
+  public info(message: any, ...additional: any[]) {
     this.logMessage(LogLevel.Info, message, additional);
   }
 
   /**
    * Log a warning message.
-   * @param {string} message - The warning message.
+   * @param {any} message - The warning message.
    * @param {...any} additional - Additional information to log.
    */
-  public warn(message: string, ...additional: any[]) {
+  public warn(message: any, ...additional: any[]) {
     this.logMessage(LogLevel.Warn, message, additional);
   }
 
   /**
    * Log an error message.
-   * @param {string|Error|unknown} message - The error message or Error object.
+   * @param {any} message - The error message or Error object.
    * @param {...any} additional - Additional information to log.
    */
-  public error(message: string, ...additional: any[]) {
+  public error(message: any, ...additional: any[]) {
     this.logMessage(LogLevel.Error, message, additional);
   }
 }
 
 const logInstance = new Log();
 export default logInstance;
-export { LogLevel, LogConfig };
+export { LogLevel, LogConfig, Log };

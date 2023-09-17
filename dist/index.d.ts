@@ -54,23 +54,23 @@ declare class Log {
     private logMessage;
     /**
      * Log an informational message.
-     * @param {string} message - The informational message.
+     * @param {any} message - The informational message.
      * @param {...any} additional - Additional information to log.
      */
-    info(message: string, ...additional: any[]): void;
+    info(message: any, ...additional: any[]): void;
     /**
      * Log a warning message.
-     * @param {string} message - The warning message.
+     * @param {any} message - The warning message.
      * @param {...any} additional - Additional information to log.
      */
-    warn(message: string, ...additional: any[]): void;
+    warn(message: any, ...additional: any[]): void;
     /**
      * Log an error message.
-     * @param {string|Error|unknown} message - The error message or Error object.
+     * @param {any} message - The error message or Error object.
      * @param {...any} additional - Additional information to log.
      */
-    error(message: string, ...additional: any[]): void;
+    error(message: any, ...additional: any[]): void;
 }
 declare const logInstance: Log;
 export default logInstance;
-export { LogLevel, LogConfig };
+export { LogLevel, LogConfig, Log };
