@@ -55,7 +55,7 @@ class Log {
     const defaultConfigs: Partial<LogConfig> = {
       useColors: true,
       timestamps: "log-only",
-      logFilePath: true,
+      logFilePath: false,
       icons:true,
     };
 
@@ -79,19 +79,20 @@ class Log {
   }
 
   private getLogFilePath(): string | null | undefined {
-    if (typeof this.config.logFilePath === 'boolean') {
-      if (!this.config.logFilePath) {
-        return null;
-      }
+    if (!this.config.logFilePath) {
+      return null;
+    }
 
+    if (typeof this.config.logFilePath) {
       const date = new Date();
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
       const period = `${month}${year}`;
 
-      const pathLogs = path.join(process.cwd(), 'logs') 
-      // path.join(__dirname, '..', '..', 'logs');
+      const pathLogs = typeof this.config.logFilePath === 'string'  ? this.config.logFilePath : path.join(process.cwd(), 'logs') 
+
+
       const pathLogsPeriod = path.join(pathLogs, period);
 
       if (!fs.existsSync(pathLogs)) {
@@ -125,8 +126,6 @@ class Log {
 
       return path.join(pathLogsPeriod, `${day}.txt`);
     }
-
-    return this.config.logFilePath;
   }
 
   /**

@@ -32,7 +32,8 @@ Log.error("Failed to connect to database.");
 
 ```javascript
 Log.configure({
-  logFilePath: "./", // Path to log file directory, file name is log.log
+  logFilePath: false, // You can passa a boolean, case true will create a folder log in root project, or pass the path of a folder that you want to create the folders and files for logs
+  icons: true, // To show icons on logs '✔ ⚠️  X'
   customColors: {
     info: "green", // Colors can be any of the supported colors
     error: "magenta",
@@ -46,7 +47,8 @@ Default configs are:
 
 ```javascript
 Log.configure({
-  logFilePath: undefined, // No file output
+  logFilePath: false, // No file output
+  icons: true,
   customColors: {
     info: "white",
     error: "red",
