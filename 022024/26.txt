@@ -1,2 +1,0 @@
-[2024-02-26T23:38:34.368Z] [[32m✔[0m INFO] This is a warning message
-[2024-02-26T23:38:34.366Z] [⚠️ WARN] This is a warning message
