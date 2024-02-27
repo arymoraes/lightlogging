@@ -56,7 +56,7 @@ class Log {
       useColors: true,
       timestamps: "log-only",
       logFilePath: false,
-      icons:true,
+      icons:false,
     };
 
     this.config = { ...defaultConfigs, ...config };
