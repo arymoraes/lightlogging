@@ -48,7 +48,7 @@ Default configs are:
 ```javascript
 Log.configure({
   logFilePath: false, // No file output
-  icons: true,
+  icons: false,
   customColors: {
     info: "white",
     error: "red",
