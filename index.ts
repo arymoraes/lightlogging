@@ -1,5 +1,5 @@
 import * as fs from "fs";
-
+import path from 'path';
 enum LogLevel {
   Info,
   Warn,
@@ -30,9 +30,10 @@ const colorNameToAnsi: Record<ColorName, string> = {
 };
 
 interface LogConfig {
-  logFilePath?: string;
+  logFilePath?: boolean | string;
   useColors?: boolean;
   timestamps?: "none" | "log-only" | "all";
+  icons?: boolean;
   customColors?: {
     info?: keyof typeof colorNameToAnsi;
     warn?: keyof typeof colorNameToAnsi;
@@ -54,6 +55,8 @@ class Log {
     const defaultConfigs: Partial<LogConfig> = {
       useColors: true,
       timestamps: "log-only",
+      logFilePath: false,
+      icons:false,
     };
 
     this.config = { ...defaultConfigs, ...config };
@@ -75,6 +78,56 @@ class Log {
     return level >= this.level;
   }
 
+  private getLogFilePath(): string | null | undefined {
+    if (!this.config.logFilePath) {
+      return null;
+    }
+
+    if (typeof this.config.logFilePath) {
+      const date = new Date();
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const period = `${month}${year}`;
+
+      const pathLogs = typeof this.config.logFilePath === 'string'  ? this.config.logFilePath : path.join(process.cwd(), 'logs') 
+
+
+      const pathLogsPeriod = path.join(pathLogs, period);
+
+      if (!fs.existsSync(pathLogs)) {
+        fs.mkdirSync(pathLogs);
+      }
+
+      if (!fs.existsSync(pathLogsPeriod)) {
+        fs.mkdirSync(pathLogsPeriod);
+
+        const folders = fs.readdirSync(pathLogs, { withFileTypes: true })
+          .filter(dirent => dirent.isDirectory())
+          .map(dirent => ({
+            name: dirent.name,
+            date: new Date(
+              Number(dirent.name.substring(2, 6)),
+              Number(dirent.name.substring(0, 2)),
+              1,
+            ),
+          }))
+          .sort((a, b) => {
+            return b.date.getTime() - a.date.getTime();
+          });
+
+        if (folders.length > 6) {
+          const lastFolder = folders[folders.length - 1].name;
+          const lastFolderPath = path.join(pathLogs, lastFolder);
+
+          fs.rmdirSync(lastFolderPath, { recursive: true });
+        }
+      }
+
+      return path.join(pathLogsPeriod, `${day}.txt`);
+    }
+  }
+
   /**
    * Configure or reconfigure the logger.
    * @param {LogConfig} config - New configuration settings to apply.
@@ -82,25 +135,24 @@ class Log {
   private writeToFile(message: any) {
     const parsedMessage =
       typeof message === "string" ? message : JSON.stringify(message);
-    if (this.config.logFilePath) {
-      if (this.config.logFilePath[this.config.logFilePath.length - 1] === "/") {
-        this.config.logFilePath = this.config.logFilePath.slice(
-          0,
-          this.config.logFilePath.length - 1
-        );
-      }
+    const logFilePath = this.getLogFilePath();
+
+    if (logFilePath) {
       const timestamp = new Date().toISOString();
 
       const formattedMessage =
         this.config.timestamps === "log-only"
           ? `[${timestamp}] ${parsedMessage}`
           : parsedMessage;
-      fs.appendFileSync(
-        `${this.config.logFilePath}/log.log`,
-        formattedMessage + "\n"
-      );
+
+      if (fs.existsSync(logFilePath)) {
+        fs.writeFileSync(logFilePath, formattedMessage + "\n");
+      } else {
+        fs.appendFile(logFilePath, formattedMessage + "\n", () => {});
+      }
     }
   }
+
 
   /**
    * Configure or reconfigure the logger.
@@ -123,17 +175,17 @@ class Log {
     if (this.shouldLog(logLevel)) {
       const levelMap = {
         [LogLevel.Info]: {
-          label: "INFO",
+          label: this.config.icons ? '\x1b[32m✔\x1b[0m INFO': 'INFO',
           defaultColor: "37",
           method: console.log,
         },
         [LogLevel.Warn]: {
-          label: "WARN",
-          defaultColor: "33",
+          label: this.config.icons ? '⚠️ WARN' : 'WARN',
+          defaultColor: "33", 
           method: console.warn,
         },
         [LogLevel.Error]: {
-          label: "ERROR",
+          label: this.config.icons ? '❌ ERROR' : 'ERROR',
           defaultColor: "31",
           method: console.error,
         },
